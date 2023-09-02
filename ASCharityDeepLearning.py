@@ -202,7 +202,7 @@ print(class_counts)
 class_counts_gt1 = class_counts.loc[class_counts > 1]
 printSeparator()
 print('CLASSIFICATION value counts > 1')
-class_counts_gt1.head()
+print(class_counts_gt1)
 
 # 
 # Choose a cutoff value and create a list of classifications to be replaced
