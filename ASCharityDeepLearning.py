@@ -3,10 +3,9 @@
 # 
 
 # %% [markdown]
-# Step 1 - Preprocessing
-
-# %% [markdown]
-# Set up the environment, importing required modules
+# Step 0   - Environment preparation
+# 
+# Step 0.1 - Set up the environment, importing required modules
 
 # %%
 #
@@ -25,11 +24,14 @@ import tensorflow                                      as tf
 from   tensorflow              import keras            as ker
 from   keras.models            import Sequential       as seq
 from   keras.layers            import Dense            as den
+import matplotlib.pyplot                               as plt
 
 warn.filterwarnings('ignore')
 
 # %% [markdown]
-# Create Auxiliary Functions
+# Step 0   - Environment preparation
+# 
+# Step 0.2 - Auxiliary functions definition
 
 # %%
 #
@@ -51,9 +53,9 @@ def printDFinfo(name,dfName):
     printSeparator()
     print('Name: ',name)
     printSeparator()
-    print(dfName.info())    
+    print(dfName.info())
     printSeparator()
-    print('Row Count :' + fr.RED)
+    print(f'Row Count :{fr.RED}')
     print(dfName.count(),fr.WHITE)
     printSeparator()
     print(dfName.head())
@@ -67,9 +69,8 @@ def printReport(reportName):
     
 def printBAS(basName):
     printSeparator()
-    print(fr.WHITE + 'Balanced Accuracy Score : '+ fr.RED + str(basName))
+    print(f'{fr.WHITE}Balanced Accuracy Score : {fr.RED}{str(basName)}')
     printSeparator()
-
 
 # %% [markdown]
 # Step 1   - Preprocess the Data
@@ -115,7 +116,6 @@ printStep('Step 1   - Preprocess the Data',\
 printSeparator()
 print('df_application.nunique()')
 printSeparator()
-#print(df_Application.nunique())
 print(df_Application.nunique())
 printSeparator()
 
@@ -173,7 +173,7 @@ print(application_types_to_replace)
 #
 
 for app in application_types_to_replace:
-    df_Application['APPLICATION_TYPE'] = df_Application['APPLICATION_TYPE'].replace(app,"Other")
+  df_Application['APPLICATION_TYPE'] = df_Application['APPLICATION_TYPE'].replace(app,"Other")
 
 # 
 # Check to make sure binning was successful
@@ -314,6 +314,7 @@ printStep('Step 1   - Preprocess the Data',\
 #
 
 df_application_numeric = pd.get_dummies(df_Application)
+printDFinfo('df_application_numeric',df_application_numeric)
 
 # %% [markdown]
 # Step 1.7 - Split the preprocessed data into a features array,  X , and a target array,  y . Use these arrays and the  train_test_split  function to split the data into training and testing datasets.
@@ -386,7 +387,7 @@ print(X_test_scaled.shape)
 printSeparator()
 
 # %% [markdown]
-# Step 2   - Compile, Train and Evaluate the Model
+# Step 2   - Define, Compile, Train and Evaluate the Model
 # 
 # Step 2.1 - Define the model parameters
 # 
@@ -406,7 +407,7 @@ printStep('Step 2   - Compile, Train, and Evaluate the Model',\
 # Define the model - deep neural net, i.e., the number of input features and hidden nodes for each layer.
 #
 
-number_input_features = len(X_train_scaled[0])
+number_input_features = len(X_train_scaled[0]) # type: ignore
 hidden_nodes_layer1   = 12
 hidden_nodes_layer2   = 12
 
@@ -487,7 +488,7 @@ printStep('Step 2   - Compile, Train, and Evaluate the Model',\
 #
 
 skip_optimization = False
-model_loss, model_accuracy = nn_model.evaluate(X_test_scaled,y_test,verbose=2)
+model_loss, model_accuracy = nn_model.evaluate(X_test_scaled,y_test)
 print(f"Loss: {model_loss:2.2f}, Accuracy: {model_accuracy:2.2f}")
 accuracy = model_accuracy * 100
 if (accuracy < 75):   
@@ -496,6 +497,11 @@ if (accuracy < 75):
 else:
     print(F'Accuracy is {accuracy:2.2f}%, greater than or equal to 75%')
     print("Model is optimized")
+    history_df = pd.DataFrame(fit_model.history, index=range(1,len(fit_model.history["loss"])+1))
+    history_df.plot(y="accuracy")
+    plt.show()
+    history_df.plot(y="loss",color='red')
+    plt.show()
     #
     # Log the processing progress
     #
@@ -530,7 +536,7 @@ else:
 if skip_optimization == False:
   printStep('Step 3   - Optimizing the Model',\
            'Step 3.1 - Attempt 1 - Add more neurons to a hidden layer')
-  number_input_features = len(X_train_scaled[0])
+  number_input_features = len(X_train_scaled[0]) # type: ignore
   print('Number of input features : ',number_input_features)
   for nodes in range(14, 140, 2):
     printSeparator()
@@ -554,11 +560,11 @@ if skip_optimization == False:
     print('Model compiled')
     printSeparator()
     print('Fit the model')
-    fit_model2 = nn_model2.fit(X_train_scaled,y_train,epochs=50,verbose=0)
+    fit_model2 = nn_model2.fit(X_train_scaled,y_train,epochs=50)
     print('Model fit')
     printSeparator()
     print('Evaluate the model')
-    model_loss2, model_accuracy2 = nn_model2.evaluate(X_test_scaled,y_test,verbose=2)
+    model_loss2, model_accuracy2 = nn_model2.evaluate(X_test_scaled,y_test)
     print(f"Loss: {model_loss2:2.2f}, Accuracy: {model_accuracy2:2.2f}")
     accuracy2 = model_accuracy2 * 100
     if (accuracy2 < 75):   
